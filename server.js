@@ -25,26 +25,35 @@ app.use(express.static(__dirname));
 // let db = []
 
 // routes
-app.get("/messages", (req, res) => {
-    Message.find({}, "-__v").then(data => {
-        // console.log(data)
-        res.send(data);
-    }).catch(err => {
+app.get("/messages", async (req, res) => {
+    try {
+        let data = await Message.find({})
+        res.send(data)
+    }
+    catch(err){
         res.sendStatus(500)
-    })
-    // res.send(db);
+        return console.log(err)
+    }
 })
-app.post("/messages", (req, res) => {
-    let msg = new Message(req.body)
-    msg.save()
-        .then(() => {
-            console.log(msg)
+app.post("/messages", async (req, res) => {
+    try{
+        let msg = new Message(req.body)
+        let saveMsg = await msg.save()
+
+        let censored = await Message.findOne({message: 'bad'})
+
+        if(censored){
+            console.log('Censored found')
+            await Message.deleteOne({_id: censored._id})
+        }else{
             io.emit("message", msg)
-            res.sendStatus(200)
-        })
-        .catch(err => {
-            res.sendStatus(500)
-        })
+        }
+        res.sendStatus(200)
+    }
+    catch(err){
+        res.sendStatus(500)
+        console.log(err)
+    }
 })
 
 // Socket events
