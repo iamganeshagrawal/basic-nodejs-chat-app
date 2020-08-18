@@ -1,11 +1,7 @@
 const {Schema, model}  = require('mongoose');
-// const shortid = require('shortid');
+
 
 let Message = new Schema({
-    // _id: {
-    //     type: String,
-    //     default: shortid.generate
-    // },
     name: String,
     message: String
 });
