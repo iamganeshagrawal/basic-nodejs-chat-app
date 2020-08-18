@@ -35,6 +35,17 @@ app.get("/messages", async (req, res) => {
         return console.log(err)
     }
 })
+app.get("/messages/:user", async (req, res) => {
+    try {
+        const {user} = req.params;
+        let data = await Message.find({name: user})
+        res.send(data)
+    }
+    catch(err){
+        res.sendStatus(500)
+        return console.log(err)
+    }
+})
 app.post("/messages", async (req, res) => {
     try{
         let msg = new Message(req.body)
