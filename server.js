@@ -26,7 +26,7 @@ app.use(express.static(__dirname));
 
 // routes
 app.get("/messages", (req, res) => {
-    Message.find({}).then(data => {
+    Message.find({}, "-__v").then(data => {
         // console.log(data)
         res.send(data);
     }).catch(err => {
@@ -36,14 +36,15 @@ app.get("/messages", (req, res) => {
 })
 app.post("/messages", (req, res) => {
     let msg = new Message(req.body)
-    msg.save((err) => {
-        if(err){
+    msg.save()
+        .then(() => {
+            console.log(msg)
+            io.emit("message", msg)
+            res.sendStatus(200)
+        })
+        .catch(err => {
             res.sendStatus(500)
-            return;
-        }
-        io.emit("message", req.body)
-        res.sendStatus(200)
-    })
+        })
 })
 
 // Socket events
