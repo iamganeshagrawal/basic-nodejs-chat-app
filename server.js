@@ -27,7 +27,7 @@ app.use(express.static(__dirname));
 // routes
 app.get("/messages", async (req, res) => {
     try {
-        let data = await Message.find({})
+        let data = await Message.find({}).skip(await Message.countDocuments() - 5)
         res.send(data)
     }
     catch(err){
