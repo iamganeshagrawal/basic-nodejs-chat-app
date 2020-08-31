@@ -17,7 +17,7 @@ let server = http.Server(app)
 let io = Socket(server)
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}))
+app.use(bodyParser.urlencoded({ extended: true }))
 //Serve static assests or frontend
 app.use(express.static(__dirname));
 
@@ -30,38 +30,38 @@ app.get("/messages", async (req, res) => {
         let data = await Message.find({}).skip(await Message.countDocuments() - 5)
         res.send(data)
     }
-    catch(err){
+    catch (err) {
         res.sendStatus(500)
         return console.log(err)
     }
 })
 app.get("/messages/:user", async (req, res) => {
     try {
-        const {user} = req.params;
-        let data = await Message.find({name: user})
+        const { user } = req.params;
+        let data = await Message.find({ name: user })
         res.send(data)
     }
-    catch(err){
+    catch (err) {
         res.sendStatus(500)
         return console.log(err)
     }
 })
 app.post("/messages", async (req, res) => {
-    try{
+    try {
         let msg = new Message(req.body)
         let saveMsg = await msg.save()
 
-        let censored = await Message.findOne({message: 'bad'})
+        let censored = await Message.findOne({ message: 'bad' })
 
-        if(censored){
+        if (censored) {
             console.log('Censored found')
-            await Message.deleteOne({_id: censored._id})
-        }else{
+            await Message.deleteOne({ _id: censored._id })
+        } else {
             io.emit("message", msg)
         }
         res.sendStatus(200)
     }
-    catch(err){
+    catch (err) {
         res.sendStatus(500)
         console.log(err)
     }
@@ -73,16 +73,16 @@ io.on("connection", (socket) => {
 })
 
 mongoose.connect(process.env.MONGO_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    },
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+},
     (err) => {
-        if(!err){
+        if (!err) {
             console.log('Database connected')
-        }else{
+        } else {
             console.warn('>>>\tDatabase connection error\n', err)
         }
-})
+    })
 server.listen(process.env.PORT || 3000, () => {
     console.log(`Server running at http://localhost:${server.address().port}`);
 })
